@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>hello view</h1>
+    {{!-- {{#each key}}
+    <h2>{{this}}</h2>
+    {{/each}} --}}
+ 
+
+
+ {{#each data}}
+ <h3>{{@key}}</h3>
+  {{#each this}}
+  <h5>{{this.name}}</h5>
+  {{/each}}
+ <hr> 
+ {{/each}}
+</body>
+</html>
