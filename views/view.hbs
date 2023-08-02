@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    span{
+        color: red;
+    }
+</style>
 <body>
-    <h1>hello view</h1>
-    {{!-- {{#each key}}
-    <h2>{{this}}</h2>
-    {{/each}} --}}
  
-
+<h1>Total number of groups :{{base.group}}</h1>
+<h3>Groups {{#each base.biggroup}}<span>{{this}} ,</span>{{/each}} has the highest number of members :{{base.bglen}}</h3>
+<h3>Groups {{#each base.smallgroup}}<span>{{this}} ,</span>{{/each}} has the lowest number of members :{{base.smlen}}</h3>
 
  {{#each data}}
  <h3>{{@key}}</h3>
