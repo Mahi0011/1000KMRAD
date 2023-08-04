@@ -1,76 +1,75 @@
-
 const express = require('express');
 const app = express();
 const geolib = require('geolib');
 
-
-//=================RADIUS INITIALISING======================
-
+// RADIUS INITIALISING
 const radius = 1000;
 
-//================FETCHING DATA ============================
-
+// FETCHING DATA
 const fetchData = async () => {
   const result = await fetch('https://ignite.zook.top/data.json');
   const data = await result.json();
   return data;
 };
 
-//==================DESTRUCTURING DATA======================
-
+// Group data based on location proximity
 const groupData = async () => {
   const data = await fetchData();
-  const transformedData = data.map((item) => ({
-    name: item.fullName,
-    location: item.address.geo,
-  }));
+
+  // Transforming data into a new format with name and location
+  const transformedData = data.map(({ fullName, address: { geo } }) => ({ name: fullName, location: geo }));
 
   let response = {};
   let visitedIndices = [];
   let groupCounter = 1;
-  let groupedLocations = [];
-
-//=======================GROUPING PEOPLE BASED ON RADIUS=========================
 
   for (let i = 0; i < transformedData.length; i++) {
     if (visitedIndices.includes(i)) continue;
+
+    let groupedLocations = [];
     for (let j = i + 1; j < transformedData.length; j++) {
       if (visitedIndices.includes(j)) continue;
+
+      // Check if the distance between two locations is within the given radius
       const res = geolib.isPointWithinRadius(transformedData[i].location, transformedData[j].location, radius * 1000);
       if (res) {
         groupedLocations.push({ id: j, name: transformedData[j].name, location: transformedData[j].location });
         visitedIndices.push(j);
       }
     }
+
+    // Include the current location in the group
     groupedLocations.push({ id: i, name: transformedData[i].name, location: transformedData[i].location });
     let finalExcludedIds = [];
 
-//====================SORTING GROUP SUCH THAT DISTANCE BETWEEN EACH PERSON IS LESS THAN THE GIVEN DISTANCE==========================
-
+    // Sort the group such that the distance between each person is less than the given distance
     for (let m = 0; m < groupedLocations.length; m++) {
       if (finalExcludedIds.includes(groupedLocations[m].id)) continue;
       for (let n = 0; n < groupedLocations.length; n++) {
         if (finalExcludedIds.includes(groupedLocations[n].id)) continue;
+
+        // Calculate the distance between two locations
         let distance = geolib.getDistance(groupedLocations[m].location, groupedLocations[n].location);
         if (distance > radius * 1000) {
           finalExcludedIds.push(groupedLocations[n].id);
         }
       }
     }
-    finalExcludedIds.map((excludedId) => {
+
+    // Remove excluded locations from the group
+    finalExcludedIds.forEach((excludedId) => {
       visitedIndices = visitedIndices.filter((id) => id !== excludedId);
-    });
-    finalExcludedIds.map((excludedId) => {
       groupedLocations = groupedLocations.filter((item) => item.id !== excludedId);
     });
-    response['group-' + groupCounter] = groupedLocations;
-    groupCounter++;
-    groupedLocations = [];
+
+    // Store the grouped locations in the response object
+    response['group-' + groupCounter++] = groupedLocations;
   }
+
   return response;
 };
 
-//====================GETTING GROUP SUMMARY============================
+// Getting group summary
 const getGroupSummary = (data) => {
   let largest = [], smallest = [], largestSize = 0, smallestSize = Infinity;
 
@@ -90,44 +89,6 @@ const getGroupSummary = (data) => {
   };
 };
 
-
-// const getGroupSummary = (data) => {
-//   let largestGroups = [];
-//   let smallestGroups = [];
-//   let largestSize = 0;
-//   let smallestSize = Infinity;
-
-//   for (const [key, value] of Object.entries(data)) {
-//     if (value.length > largestSize) {
-//       largestSize = value.length;
-//       largestGroups = [key];
-//     } else if (value.length === largestSize) {
-//       largestGroups.push(key);
-//     }
-
-//     if (value.length < smallestSize) {
-//       smallestSize = value.length;
-//       smallestGroups = [key];
-//     } else if (value.length === smallestSize) {
-//       smallestGroups.push(key);
-//     }
-//   }
-
-//   return {
-//     groupCount: Object.keys(data).length,
-//     largestGroups: largestGroups,
-//     largestGroupSize: data[largestGroups[0]].length,
-//     smallestGroups: smallestGroups,
-//     smallestGroupSize: data[smallestGroups[0]].length,
-//   };
-// };
-
-let start = async () => {
-  const data = await groupData();
-  const groupSummary = getGroupSummary(data);
-};
-start();
-
 app.set('view engine', 'hbs');
 
 app.get('/', async (req, res) => {
@@ -136,7 +97,7 @@ app.get('/', async (req, res) => {
     const groupSummary = getGroupSummary(data);
     res.render('view', { data, groupSummary });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send('Internal Server Error');
   }
 });
