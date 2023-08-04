@@ -5,23 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <style>
+    body{
+        padding: 20px;
+        margin: auto;
+    }
     span{
         color: red;
     }
+    .container{
+        background-color: lightcyan;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 50px;
+        border: 10px double black;
+        border-radius: 2%;
+        padding: 30px;
+    }
+    #card{
+        width: 250px;
+        background-color: #90d5ec;
+        background-image: linear-gradient(315deg, #90d5ec 0%, #f38086 74%);
+    }
+    .h{
+        width: 100%;
+    }
 </style>
 <body>
- 
-<h1>Total number of groups :{{base.group}}</h1>
-<h3>Groups {{#each base.biggroup}}<span>{{this}} ,</span>{{/each}} has the highest number of members :{{base.bglen}}</h3>
-<h3>Groups {{#each base.smallgroup}}<span>{{this}} ,</span>{{/each}} has the lowest number of members :{{base.smlen}}</h3>
+
+<div class="container">
+
+<div class="h">
+<h1>Total number of groups :{{groupSummary.groupCount}}</h1>
+<h6>Groups {{#each groupSummary.largestGroups}}<span>{{this}} ,</span>{{/each}} has the highest number of members :{{groupSummary.largestGroupSize}}</h6>
+<h6>Groups {{#each groupSummary.smallestGroups}}<span>{{this}} ,</span>{{/each}} has the lowest number of members :{{groupSummary.smallestGroupSize}}</h6>
+</div>
 
  {{#each data}}
+ <div id="card"class="card text-white mb-3" style="max-width: 18rem;">
+  <div class="card-header"><b>{{@key}}</b></div>
+  <div class="card-body">
+      {{#each this}}
+    <p class="card-text"><i>{{this.name}}</i></p>
+      {{/each}}
+  </div>
+</div>
+ {{/each}}
+</div>
+
+ {{!-- {{#each data}}
  <h3>{{@key}}</h3>
   {{#each this}}
   <h5>{{this.name}}</h5>
   {{/each}}
  <hr> 
- {{/each}}
+ {{/each}} --}}
 </body>
 </html>
